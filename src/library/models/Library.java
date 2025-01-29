@@ -15,15 +15,35 @@ public class Library {
     }
 
     // Add a book to the library
-    public void addBook(Book book) {
+    public void addBook(Book book, boolean silent) {
         if (books.containsKey(book.getId())) {
-            System.out.println("Book with ID " + book.getId() + " already exists.");
+            if (!silent) System.out.println("Book with ID " + book.getId() + " already exists.");
             return;
         }
         books.put(book.getId(), book);
         categories.putIfAbsent(book.getCategory(), new Category(book.getCategory()));
         categories.get(book.getCategory()).addBook(book);
-        System.out.println("Book '" + book.getTitle() + "' added successfully.");
+        if (!silent) System.out.println("Book '" + book.getTitle() + "' added successfully.");
+    }
+
+    // Overloaded method for backward compatibility (defaults to non-silent mode)
+    public void addBook(Book book) {
+        addBook(book, false);
+    }
+
+    // Add a user to the library
+    public void addUser(User user, boolean silent) {
+        if (users.containsKey(user.getId())) {
+            if (!silent) System.out.println("User with ID " + user.getId() + " already exists.");
+            return;
+        }
+        users.put(user.getId(), user);
+        if (!silent) System.out.println("User '" + user.getName() + "' added successfully.");
+    }
+
+    // Overloaded method for backward compatibility (defaults to non-silent mode)
+    public void addUser(User user) {
+        addUser(user, false);
     }
 
     // Remove a book from the library
@@ -40,15 +60,6 @@ public class Library {
         System.out.println("Book '" + book.getTitle() + "' removed successfully.");
     }
 
-    // Add a user to the library
-    public void addUser(User user) {
-        if (users.containsKey(user.getId())) {
-            System.out.println("User with ID " + user.getId() + " already exists.");
-            return;
-        }
-        users.put(user.getId(), user);
-        System.out.println("User '" + user.getName() + "' added successfully.");
-    }
 
     // Borrow a book for a user
     public void borrowBook(String userId, String bookId) {
@@ -115,7 +126,14 @@ public class Library {
         System.out.println("Books in category '" + categoryName + "':");
         category.listBooks();
     }
-
+    // Get a set of all unique authors in the library
+    public Set<String> getAllAuthors() {
+        Set<String> authors = new HashSet<>();
+        for (Book book : books.values()) {
+            authors.add(book.getAuthor());
+        }
+        return authors;
+    }
     // List books by author
     public void listBooksByAuthor(String authorName) {
         System.out.println("Books by '" + authorName + "':");
@@ -143,16 +161,6 @@ public class Library {
         }
     }
 
-    // Getter for books
-    public Map<String, Book> getBooks() {
-        return books;
-    }
-
-    // Getter for users
-    public Map<String, User> getUsers() {
-        return users;
-    }
-
     // List all categories
     public void listAllCategories() {
         if (categories.isEmpty()) {
@@ -169,5 +177,20 @@ public class Library {
     public List<Book> getBooksByCategory(String categoryName) {
         Category category = categories.get(categoryName);
         return category != null ? category.getBooks() : Collections.emptyList();
+    }
+
+    // Getter for categories (added for Main.java compatibility)
+    public Map<String, Category> getCategories() {
+        return categories;
+    }
+
+    // Getter for books
+    public Map<String, Book> getBooks() {
+        return books;
+    }
+
+    // Getter for users
+    public Map<String, User> getUsers() {
+        return users;
     }
 }
