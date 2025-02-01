@@ -7,6 +7,7 @@ public class Book {
     private String author;        // Author of the book
     private String category;      // Category/genre of the book
     private boolean isAvailable;  // Availability status
+    private String borrowedBy;    // The ID of the user who borrowed the book (if any)
 
     // Constructor
     public Book(String id, String title, String author, String category) {
@@ -14,7 +15,8 @@ public class Book {
         this.title = title;
         this.author = author;
         this.category = category;
-        this.isAvailable = true;  // Default to available when a new book is created
+        this.isAvailable = true;         // Default to available when a new book is created
+        this.borrowedBy = null;          // No borrower initially
     }
 
     // Getters and Setters
@@ -55,18 +57,38 @@ public class Book {
     }
 
     public void setAvailable(boolean available) {
-        isAvailable = available;
+        this.isAvailable = available;
+        if (available) {
+            this.borrowedBy = null; // Reset borrower when book becomes available
+        }
+    }
+
+    public String getBorrowedBy() {
+        return borrowedBy;
+    }
+
+    public void setBorrowedBy(String borrowedBy) {
+        this.borrowedBy = borrowedBy;
+        // Set availability automatically when assigning borrower
+        this.isAvailable = (borrowedBy == null);
+    }
+
+    /**
+     * Method to get the display-friendly status of the book.
+     * - If available, returns "can be borrowed".
+     * - If not available, returns "borrowed by [user ID]".
+     */
+    public String getStatus() {
+        return isAvailable ? "can be borrowed" : "borrowed by " + borrowedBy;
     }
 
     // toString method for displaying book details
     @Override
     public String toString() {
-        return "Book{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", category='" + category + '\'' +
-                ", isAvailable=" + isAvailable +
-                '}';
+        return "ID: " + id +
+                ", Title: " + title +
+                ", Author: " + author +
+                ", Category: " + category +
+                ", Status: " + getStatus();
     }
 }
