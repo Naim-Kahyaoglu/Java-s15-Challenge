@@ -40,8 +40,8 @@ public class MenuHandler {
             System.out.println("6. List Books by Author");
             System.out.println("7. Remove Book");
             System.out.println("8. Edit Book Information");
-            System.out.println("9. Exit");
-            System.out.println("10. List Transactions History");
+            System.out.println("9. List Transactions History"); // Moved here
+            System.out.println("10. Exit"); // Moved here
             System.out.print("Enter your choice: ");
 
             int choice;
@@ -50,10 +50,11 @@ public class MenuHandler {
                 scanner.nextLine(); // Consume the newline character
                 processChoice(choice, scanner);
             } catch (Exception e) {
-                System.out.println("Invalid input. Please enter a number from 1 to 9.");
+                System.out.println("Invalid input. Please enter a number from 1 to 10.");
                 scanner.nextLine(); // Clear invalid input
             }
         }
+
 
     }
 
@@ -68,14 +69,15 @@ public class MenuHandler {
             case 6 -> listBooksByAuthor(scanner);
             case 7 -> removeBook(scanner);
             case 8 -> bookEditor.editBookInformation(scanner);
-            case 9 -> {
+            case 9 -> listTransactionsHistory(scanner); // Updated number
+            case 10 -> {
                 System.out.println("Exiting Library System. Goodbye!");
                 System.exit(0);
             }
-            case 10 -> listTransactionsHistory(scanner); // <== New Case
             default -> System.out.println("Invalid option. Please enter a valid number from 1 to 10.");
         }
     }
+
 
 
     // Add a new book to the library
@@ -205,10 +207,40 @@ public class MenuHandler {
     }
     // List the transaction history of a user
     private void listTransactionsHistory(Scanner scanner) {
-        System.out.print("Enter the User ID to view their transaction history: ");
-        String userId = scanner.nextLine();
+        // Step 1: Get all users
+        if (library.getUsers().isEmpty()) {
+            System.out.println("No users are currently registered in the library.");
+            return;
+        }
 
-        // Call the library service to list the transaction history for the user
-        libraryService.listUserTransactions(userId);
+        // Step 2: Display all users in a numbered list
+        List<User> userList = new ArrayList<>(library.getUsers().values()); // Convert map to list
+        System.out.println("\nUsers in the library:");
+        for (int i = 0; i < userList.size(); i++) {
+            User user = userList.get(i);
+            System.out.println((i + 1) + ". " + user.getName() + " (User ID: " + user.getId() + ")");
+        }
+
+        // Step 3: Prompt the user to select a user from the list
+        System.out.print("\nEnter the number corresponding to the user to view their transaction history: ");
+        try {
+            int choice = scanner.nextInt(); // Get the number from the user
+            scanner.nextLine(); // Clear any leftover newline character
+
+            // Step 4: Validate input
+            if (choice < 1 || choice > userList.size()) {
+                System.out.println("Invalid selection. Please enter a number between 1 and " + userList.size() + ".");
+                return;
+            }
+
+            // Step 5: Fetch and display the selected user's transaction history
+            User selectedUser = userList.get(choice - 1); // Convert to zero-based index
+            System.out.println("\nTransaction history for user: " + selectedUser.getName());
+            library.listUserTransactions(selectedUser.getId()); // Delegate to the Library class' method
+
+        } catch (Exception e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+            scanner.nextLine(); // Clear invalid input
+        }
     }
 }
